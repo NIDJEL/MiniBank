@@ -8,11 +8,14 @@ import (
 )
 
 func main() {
-	srv := server.New()
+	srv, err := server.New()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	log.Println("MiniBank started on :8080")
 
-	err := http.ListenAndServe(":8080", srv.Handler())
+	err = http.ListenAndServe(":8080", srv.Handler())
 	if err != nil {
 		log.Fatal(err)
 	}
