@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -9,9 +10,10 @@ import (
 type Server struct {
 	mux       *http.ServeMux
 	templates *template.Template
+	db        *sql.DB
 }
 
-func New() (*Server, error) {
+func New(db *sql.DB) (*Server, error) {
 
 	tmpl, err := template.ParseGlob("web/templates/*.html")
 	if err != nil {
@@ -21,6 +23,7 @@ func New() (*Server, error) {
 	s := &Server{
 		mux:       http.NewServeMux(),
 		templates: tmpl,
+		db:        db,
 	}
 
 	s.routes()
@@ -37,6 +40,8 @@ func (s *Server) routes() {
 
 	s.mux.HandleFunc("GET /login", s.showLoginHandler)
 	s.mux.HandleFunc("POST /login", s.submitLoginHandler)
+
+	s.mux.HandleFunc("GET /ready", s.readyHandler)
 }
 
 func (s *Server) Handler() http.Handler {
@@ -80,4 +85,14 @@ func (s *Server) submitLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("Get login: " + email + "/" + password))
 
+}
+
+func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
+	err := s.db.Ping()
+	if err != nil {
+		http.Error(w, "database is not ready", http.StatusServiceUnavailable)
+		return
+	}
+
+	w.Write([]byte("database is ready\n"))
 }

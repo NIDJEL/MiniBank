@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: minibank-postgres
+    environment:
+      POSTGRES_USER: minibank
+      POSTGRES_PASSWORD: minibankpass
+      POSTGRES_DB: minibank
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - minibank_postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+
+  adminer:
+    image: adminer
+    container_name: minibank-adminer
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  minibank_postgres_data:

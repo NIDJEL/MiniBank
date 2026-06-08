@@ -5,10 +5,19 @@ import (
 	"net/http"
 
 	"github.com/NIDJEL/MiniBank/internal/server"
+	storage "github.com/NIDJEL/MiniBank/internal/storeage"
 )
 
 func main() {
-	srv, err := server.New()
+	databaseURL := "postgres://minibank:minibankpass@localhost:5432/minibank?sslmode=disable"
+
+	db, err := storage.OpenPostgres(databaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	srv, err := server.New(db)
 	if err != nil {
 		log.Fatal(err)
 	}
