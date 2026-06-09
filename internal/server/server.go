@@ -72,7 +72,52 @@ func (s *Server) submitRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	w.Write([]byte("New user: " + username + "/" + email + "/" + password))
+	if username == "" || email == "" || password == "" {
+		http.Error(w, "заполните все поля", http.StatusBadRequest)
+		return
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	var userID int64
+
+	err = tx.QueryRow(
+		`INSERT INTO users (username, email, password_hash)
+			   VALUES ($1, $2, $3)
+			   RETURNING id`,
+		username,
+		email,
+		password,
+	).Scan(&userID)
+	if err != nil {
+		http.Error(w, "cannot create user", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec(
+		`INSERT INTO accounts (user_id, balance)
+			   values ($1, $2)`,
+		userID,
+		0,
+	)
+
+	if err != nil {
+		http.Error(w, "cannot create account", http.StatusInternalServerError)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		http.Error(w, "cannot commit transaction", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("User created. ID: " + fmt.Sprint(userID)))
 }
 
 func (s *Server) showLoginHandler(w http.ResponseWriter, r *http.Request) {
