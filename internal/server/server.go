@@ -2,10 +2,14 @@ package server
 
 import (
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"html/template"
+	"math/rand"
 	"net/http"
+	"time"
 
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -13,9 +17,10 @@ type Server struct {
 	mux       *http.ServeMux
 	templates *template.Template
 	db        *sql.DB
+	redis     *redis.Client
 }
 
-func New(db *sql.DB) (*Server, error) {
+func New(db *sql.DB, rdb *redis.Client) (*Server, error) {
 
 	tmpl, err := template.ParseGlob("web/templates/*.html")
 	if err != nil {
@@ -26,6 +31,7 @@ func New(db *sql.DB) (*Server, error) {
 		mux:       http.NewServeMux(),
 		templates: tmpl,
 		db:        db,
+		redis:     rdb,
 	}
 
 	s.routes()
@@ -44,6 +50,9 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /login", s.submitLoginHandler)
 
 	s.mux.HandleFunc("GET /ready", s.readyHandler)
+
+	s.mux.HandleFunc("GET /redis-ping", s.redisPingHandler)
+	s.mux.HandleFunc("GET /dashboard", s.dashboardHandler)
 }
 
 func (s *Server) Handler() http.Handler {
@@ -162,7 +171,49 @@ func (s *Server) submitLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Successful login. Hi, " + username))
+	sessionID, err := newSessionId()
+	if err != nil {
+		http.Error(w, "cannot create session", http.StatusInternalServerError)
+		return
+	}
+
+	err = s.redis.Set(
+		r.Context(),
+		"session:"+sessionID,
+		userID,
+		24*time.Hour).Err()
+
+	if err != nil {
+		http.Error(w, "cannot save session", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    sessionID,
+		Path:     "/",
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (s *Server) dashboardHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	userID, err := s.redis.Get(r.Context(), "session:"+cookie.Value).Result()
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	w.Write([]byte("Personal account. User ID:" + userID))
 }
 
 func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
@@ -173,4 +224,25 @@ func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("database is ready\n"))
+}
+
+func (s *Server) redisPingHandler(w http.ResponseWriter, r *http.Request) {
+	err := s.redis.Ping(r.Context()).Err()
+	if err != nil {
+		http.Error(w, "redis is not reday", http.StatusServiceUnavailable)
+		return
+	}
+
+	w.Write([]byte("redis is ready"))
+}
+
+func newSessionId() (string, error) {
+	bytes := make([]byte, 32)
+
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(bytes), nil
 }
