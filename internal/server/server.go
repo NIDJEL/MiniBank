@@ -136,8 +136,33 @@ func (s *Server) submitLoginHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	w.Write([]byte("Get login: " + email + "/" + password))
+	if email == "" || password == "" {
+		http.Error(w, "Fild textboxes", http.StatusBadRequest)
+		return
+	}
 
+	var userID int
+	var username string
+	var passwordHash string
+
+	err := s.db.QueryRow(`SELECT id, username, password_hash
+		FROM users
+		WHERE email = $1`,
+		email,
+	).Scan(&userID, &username, &passwordHash)
+
+	if err != nil {
+		http.Error(w, "incorrect password or login\n", http.StatusUnauthorized)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+	if err != nil {
+		http.Error(w, "incorrect password or login\n", http.StatusUnauthorized)
+		return
+	}
+
+	w.Write([]byte("Successful login. Hi, " + username))
 }
 
 func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
