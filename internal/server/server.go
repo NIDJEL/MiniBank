@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Server struct {
@@ -77,6 +79,12 @@ func (s *Server) submitRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "cannot hash password", http.StatusInternalServerError)
+		return
+	}
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		http.Error(w, "database error", http.StatusInternalServerError)
@@ -92,7 +100,7 @@ func (s *Server) submitRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			   RETURNING id`,
 		username,
 		email,
-		password,
+		string(passwordHash),
 	).Scan(&userID)
 	if err != nil {
 		http.Error(w, "cannot create user", http.StatusInternalServerError)
