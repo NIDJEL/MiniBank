@@ -50,19 +50,112 @@ func New(db *sql.DB, rdb *redis.Client) (*Server, error) {
 func (s *Server) routes() {
 	s.mux.HandleFunc("GET /", s.homeHandler)
 	s.mux.HandleFunc("GET /health", s.healthHandler)
-
 	s.mux.HandleFunc("GET /register", s.showRegisterHandler)
 	s.mux.HandleFunc("POST /register", s.submitRegisterHandler)
-
 	s.mux.HandleFunc("GET /login", s.showLoginHandler)
 	s.mux.HandleFunc("POST /login", s.submitLoginHandler)
-
 	s.mux.HandleFunc("GET /ready", s.readyHandler)
-
 	s.mux.HandleFunc("GET /redis-ping", s.redisPingHandler)
 	s.mux.HandleFunc("GET /dashboard", s.dashboardHandler)
-
 	s.mux.HandleFunc("GET /loguot", s.logoutHandler)
+	s.mux.HandleFunc("GET /deposit", s.depositPageHandler)
+	s.mux.HandleFunc("POST /deposit", s.submitDepositHandler)
+	s.mux.HandleFunc("GET /withdraw", s.withdrawPageHandler)
+	s.mux.HandleFunc("POST /withdraw", s.submitWithdrawHandler)
+}
+
+func (s *Server) depositPageHandler(w http.ResponseWriter, r *http.Request) {
+	_, ok := s.currentUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	err := s.templates.ExecuteTemplate(w, "deposit.html", nil)
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) submitDepositHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := s.currentUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	amount := r.FormValue("amount")
+
+	value, err := strconv.ParseFloat(amount, 64)
+	if err != nil || value <= 0 {
+		http.Error(w, "amount must be greater than zero", http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.db.Exec(`
+		UPDATE accounts
+		SET balance = balance + $1::numeric
+		WHERE user_id = $2`, amount, userID)
+	if err != nil {
+		http.Error(w, "cannot deposit memory", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (s *Server) withdrawPageHandler(w http.ResponseWriter, r *http.Request) {
+	_, ok := s.currentUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	err := s.templates.ExecuteTemplate(w, "withdraw.html", nil)
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) submitWithdrawHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := s.currentUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	amount := r.FormValue("amount")
+
+	value, err := strconv.ParseFloat(amount, 64)
+	if err != nil || value <= 0 {
+		http.Error(w, "amount must be greater than zero", http.StatusBadRequest)
+		return
+	}
+
+	result, err := s.db.Exec(`
+		UPDATE accounts
+		SET balance = balance - $1::numeric
+		WHERE user_id = $2 AND balance >= $1::numeric
+	`, amount, userID)
+	if err != nil {
+		http.Error(w, "cannot withdraw money", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "cannot check withdraw result", http.StatusInternalServerError)
+		return
+	}
+
+	if rows == 0 {
+		http.Error(w, "not enough money", http.StatusBadRequest)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func (s *Server) Handler() http.Handler {

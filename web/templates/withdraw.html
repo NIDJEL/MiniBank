@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Withdraw - MiniBank</title>
+</head>
+<body>
+<h1>Withdraw money</h1>
+
+<form action="/withdraw" method="post">
+    <label>Amount:</label><br>
+    <input type="number" name="amount" step="0.01" min="0.01" required><br><br>
+
+    <button type="submit">Withdraw</button>
+</form>
+
+<p><a href="/dashboard">Back to dashboard</a></p>
+</body>
+</html>
