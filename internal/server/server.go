@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -18,6 +19,13 @@ type Server struct {
 	templates *template.Template
 	db        *sql.DB
 	redis     *redis.Client
+}
+
+type dashboardData struct {
+	Username string
+	Email    string
+	Balance  string
+	Currency string
 }
 
 func New(db *sql.DB, rdb *redis.Client) (*Server, error) {
@@ -53,6 +61,8 @@ func (s *Server) routes() {
 
 	s.mux.HandleFunc("GET /redis-ping", s.redisPingHandler)
 	s.mux.HandleFunc("GET /dashboard", s.dashboardHandler)
+
+	s.mux.HandleFunc("GET /loguot", s.logoutHandler)
 }
 
 func (s *Server) Handler() http.Handler {
@@ -134,7 +144,7 @@ func (s *Server) submitRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("User created. ID: " + fmt.Sprint(userID)))
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (s *Server) showLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -200,20 +210,74 @@ func (s *Server) submitLoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-func (s *Server) dashboardHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) currentUserID(r *http.Request) (int, bool) {
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
+		return 0, false
 	}
 
-	userID, err := s.redis.Get(r.Context(), "session:"+cookie.Value).Result()
+	userIDText, err := s.redis.Get(r.Context(), "session:"+cookie.Value).Result()
 	if err != nil {
+		return 0, false
+	}
+
+	userID, err := strconv.Atoi(userIDText)
+	if err != nil {
+		return 0, false
+	}
+
+	return userID, true
+}
+
+func (s *Server) dashboardHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := s.currentUserID(r)
+	if !ok {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	w.Write([]byte("Personal account. User ID:" + userID))
+	var data dashboardData
+
+	err := s.db.QueryRow(`
+		SELECT u.username, u.email, a.balance::text, a.currency
+		FROM users u
+		JOIN accounts a ON a.user_id = u.id
+		WHERE u.id = $1
+	`, userID).Scan(
+		&data.Username,
+		&data.Email,
+		&data.Balance,
+		&data.Currency,
+	)
+	if err != nil {
+		http.Error(w, "cannot load dashboard", http.StatusInternalServerError)
+		return
+	}
+
+	err = s.templates.ExecuteTemplate(w, "dashboard.html", data)
+	if err != nil {
+		http.Error(w, "temlate error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		_ = s.redis.Del(r.Context(), "session:"+cookie.Value).Err()
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
