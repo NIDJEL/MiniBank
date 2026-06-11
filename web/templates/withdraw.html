@@ -1,19 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Withdraw - MiniBank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вывод - MiniBank</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-<h1>Withdraw money</h1>
+<body class="page">
+    <header class="topbar">
+        <a class="brand" href="/dashboard" aria-label="Кабинет MiniBank">
+            <span class="brand-mark">M</span>
+            <span class="brand-text">
+                <span>MiniBank</span>
+                <span class="brand-kicker">Withdraw</span>
+            </span>
+        </a>
 
-<form action="/withdraw" method="post">
-    <label>Amount:</label><br>
-    <input type="number" name="amount" step="0.01" min="0.01" required><br><br>
+        <nav class="nav-actions" aria-label="Навигация операции">
+            <a class="nav-link" href="/dashboard">Кабинет</a>
+            <a class="btn btn-secondary btn-small" href="/logout">Выйти</a>
+        </nav>
+    </header>
 
-    <button type="submit">Withdraw</button>
-</form>
+    <main class="transaction-shell">
+        <div class="transaction-layout">
+            <section class="transaction-story" aria-labelledby="withdraw-story-title">
+                <div class="story-card">
+                    <p class="eyebrow">Вывод</p>
+                    <h1 id="withdraw-story-title">Выведите доступные средства</h1>
+                    <p>Укажите сумму в пределах текущего баланса. Система проверит остаток перед списанием.</p>
+                </div>
 
-<p><a href="/dashboard">Back to dashboard</a></p>
+                <div class="transaction-helper">
+                    <div class="helper-total">
+                        <span>Контроль операции</span>
+                        <strong>≤ баланс</strong>
+                        <p class="form-note">Если средств недостаточно, операция не будет выполнена.</p>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-mark">↗</span>
+                        <span>Вывод доступен только в пределах текущего остатка</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="transaction-panel" aria-labelledby="withdraw-title">
+                <p class="eyebrow">Новая операция</p>
+                <h1 id="withdraw-title">Вывести</h1>
+                <p class="panel-copy">Введите сумму, которая не превышает доступный баланс.</p>
+
+                <form class="form card-form" action="/withdraw" method="post">
+                    <div class="form-group">
+                        <label for="amount">Сумма</label>
+                        <input class="input" id="amount" type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" type="submit">Вывести деньги</button>
+                </form>
+
+                <p class="form-footer"><a href="/dashboard">Вернуться в кабинет</a></p>
+            </section>
+        </div>
+    </main>
 </body>
 </html>

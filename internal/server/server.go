@@ -48,6 +48,7 @@ func New(db *sql.DB, rdb *redis.Client) (*Server, error) {
 }
 
 func (s *Server) routes() {
+	s.mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 	s.mux.HandleFunc("GET /", s.homeHandler)
 	s.mux.HandleFunc("GET /health", s.healthHandler)
 	s.mux.HandleFunc("GET /register", s.showRegisterHandler)
@@ -57,6 +58,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /ready", s.readyHandler)
 	s.mux.HandleFunc("GET /redis-ping", s.redisPingHandler)
 	s.mux.HandleFunc("GET /dashboard", s.dashboardHandler)
+	s.mux.HandleFunc("GET /logout", s.logoutHandler)
 	s.mux.HandleFunc("GET /loguot", s.logoutHandler)
 	s.mux.HandleFunc("GET /deposit", s.depositPageHandler)
 	s.mux.HandleFunc("POST /deposit", s.submitDepositHandler)
@@ -163,7 +165,7 @@ func (s *Server) Handler() http.Handler {
 }
 
 func (s *Server) homeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "MiniBank is running\n")
+	s.render(w, "home.html")
 }
 
 func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -356,7 +358,7 @@ func (s *Server) dashboardHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_id")
-	if err != nil {
+	if err == nil {
 		_ = s.redis.Del(r.Context(), "session:"+cookie.Value).Err()
 	}
 

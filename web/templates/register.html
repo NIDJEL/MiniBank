@@ -1,28 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign up in a MiniBank</title>
+    <title>Открыть счет - MiniBank</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-    <h1>Sign up</h1>
+<body class="page">
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Главная MiniBank">
+            <span class="brand-mark">M</span>
+            <span class="brand-text">
+                <span>MiniBank</span>
+                <span class="brand-kicker">Personal finance</span>
+            </span>
+        </a>
 
+        <nav class="nav-actions" aria-label="Навигация аккаунта">
+            <a class="nav-link" href="/">Главная</a>
+            <a class="btn btn-secondary btn-small" href="/login">Войти</a>
+        </nav>
+    </header>
 
-    <form method="POST" action="/register">
-        <label>Username:</label><br>
-        <input type="text" name="username"><br><br>
+    <main class="auth-shell">
+        <div class="auth-layout">
+            <section class="auth-story" aria-labelledby="register-story-title">
+                <div class="story-card">
+                    <p class="eyebrow">Новый счет</p>
+                    <h1 id="register-story-title">Откройте MiniBank за минуту</h1>
+                    <p>Создайте аккаунт и получите чистый кабинет для базовых финансовых операций.</p>
+                </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email"><br><br>
+                <div class="insight-list" aria-label="Что будет после регистрации">
+                    <div class="insight-item">
+                        <span class="insight-mark">✓</span>
+                        <span>Автоматическое создание счета с нулевым балансом</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-mark">✓</span>
+                        <span>Доступ к пополнению и выводу после входа</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-mark">✓</span>
+                        <span>Единый светлый интерфейс для всех страниц</span>
+                    </div>
+                </div>
+            </section>
 
-        <label>Password:</label><br>
-        <input type="password" name="password"><br><br>
+            <section class="auth-panel" aria-labelledby="register-title">
+                <p class="eyebrow">Регистрация</p>
+                <h1 id="register-title">Открыть счет</h1>
+                <p class="panel-copy">Заполните данные для доступа к балансу и операциям.</p>
 
-        <button type="submit">Sign up</button>
-    </form>
+                <form class="form card-form" method="POST" action="/register">
+                    <div class="form-group">
+                        <label for="username">Имя пользователя</label>
+                        <input class="input" id="username" type="text" name="username" autocomplete="username" required>
+                    </div>
 
-    <p><a href="/">Home</a></p>
-    <p><a href="/login">Already have account?</a></p>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input class="input" id="email" type="email" name="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input class="input" id="password" type="password" name="password" autocomplete="new-password" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" type="submit">Создать аккаунт</button>
+                </form>
+
+                <p class="form-footer">Уже есть аккаунт? <a href="/login">Войти</a></p>
+            </section>
+        </div>
+    </main>
 </body>
 </html>

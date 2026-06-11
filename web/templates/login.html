@@ -1,25 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign in - MiniBank</title>
+    <title>Вход - MiniBank</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-    <h1>Sign in</h1>
+<body class="page">
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Главная MiniBank">
+            <span class="brand-mark">M</span>
+            <span class="brand-text">
+                <span>MiniBank</span>
+                <span class="brand-kicker">Personal finance</span>
+            </span>
+        </a>
 
+        <nav class="nav-actions" aria-label="Навигация аккаунта">
+            <a class="nav-link" href="/">Главная</a>
+            <a class="btn btn-primary btn-small" href="/register">Открыть счет</a>
+        </nav>
+    </header>
 
-    <form method="POST" action="/login">
-        <label>Email:</label><br>
-        <input type="email" name="email"><br><br>
+    <main class="auth-shell">
+        <div class="auth-layout">
+            <section class="auth-story" aria-labelledby="login-story-title">
+                <div class="story-card">
+                    <p class="eyebrow">Личный кабинет</p>
+                    <h1 id="login-story-title">Вернитесь к управлению счетом</h1>
+                    <p>Войдите, чтобы увидеть баланс, открыть быстрые действия и продолжить работу с MiniBank.</p>
+                </div>
 
-        <label>Password</label><br>
-        <input type="password" name="password"><br><br>
+                <div class="insight-list" aria-label="Преимущества входа">
+                    <div class="insight-item">
+                        <span class="insight-mark">1</span>
+                        <span>Баланс и валюта счета на первой странице</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-mark">2</span>
+                        <span>Пополнение и вывод доступны из кабинета</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-mark">3</span>
+                        <span>Интерфейс адаптирован под мобильные экраны</span>
+                    </div>
+                </div>
+            </section>
 
-        <button type="submit">Sign in</button>
-    </form>
+            <section class="auth-panel" aria-labelledby="login-title">
+                <p class="eyebrow">Безопасный вход</p>
+                <h1 id="login-title">Войти</h1>
+                <p class="panel-copy">Введите email и пароль, чтобы открыть кабинет.</p>
 
-    <p><a href="/">Home</a></p>
-    <p><a href="/register">Create account</a></p>
+                <form class="form card-form" method="POST" action="/login">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input class="input" id="email" type="email" name="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input class="input" id="password" type="password" name="password" autocomplete="current-password" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" type="submit">Войти в кабинет</button>
+                </form>
+
+                <p class="form-footer">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+            </section>
+        </div>
+    </main>
 </body>
 </html>

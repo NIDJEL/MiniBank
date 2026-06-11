@@ -1,19 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Deposit - MiniBank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пополнение - MiniBank</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-<h1>Deposit money</h1>
+<body class="page">
+    <header class="topbar">
+        <a class="brand" href="/dashboard" aria-label="Кабинет MiniBank">
+            <span class="brand-mark">M</span>
+            <span class="brand-text">
+                <span>MiniBank</span>
+                <span class="brand-kicker">Deposit</span>
+            </span>
+        </a>
 
-<form action="/deposit" method="post">
-    <label>Amount:</label><br>
-    <input type="number" name="amount" step="0.01" min="0.01" required><br><br>
+        <nav class="nav-actions" aria-label="Навигация операции">
+            <a class="nav-link" href="/dashboard">Кабинет</a>
+            <a class="btn btn-secondary btn-small" href="/logout">Выйти</a>
+        </nav>
+    </header>
 
-    <button type="submit">Deposit</button>
-</form>
+    <main class="transaction-shell">
+        <div class="transaction-layout">
+            <section class="transaction-story" aria-labelledby="deposit-story-title">
+                <div class="story-card">
+                    <p class="eyebrow">Пополнение</p>
+                    <h1 id="deposit-story-title">Добавьте деньги на счет</h1>
+                    <p>Введите сумму, подтвердите действие и возвращайтесь в кабинет с обновленным балансом.</p>
+                </div>
 
-<p><a href="/dashboard">Back to dashboard</a></p>
+                <div class="transaction-helper">
+                    <div class="helper-total">
+                        <span>Рекомендуемый сценарий</span>
+                        <strong>0.00</strong>
+                        <p class="form-note">Минимальная сумма задается текущей формой: 0.01.</p>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-mark">+</span>
+                        <span>После пополнения вы вернетесь к актуальному балансу</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="transaction-panel" aria-labelledby="deposit-title">
+                <p class="eyebrow">Новая операция</p>
+                <h1 id="deposit-title">Пополнить</h1>
+                <p class="panel-copy">Введите сумму, которую нужно зачислить на счет.</p>
+
+                <form class="form card-form" action="/deposit" method="post">
+                    <div class="form-group">
+                        <label for="amount">Сумма</label>
+                        <input class="input" id="amount" type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" type="submit">Пополнить счет</button>
+                </form>
+
+                <p class="form-footer"><a href="/dashboard">Вернуться в кабинет</a></p>
+            </section>
+        </div>
+    </main>
 </body>
 </html>

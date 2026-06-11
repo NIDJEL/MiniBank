@@ -1,20 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - MiniBank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет - MiniBank</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-<h1>MiniBank dashboard</h1>
+<body class="page">
+    <header class="topbar">
+        <a class="brand" href="/dashboard" aria-label="Кабинет MiniBank">
+            <span class="brand-mark">M</span>
+            <span class="brand-text">
+                <span>MiniBank</span>
+                <span class="brand-kicker">Dashboard</span>
+            </span>
+        </a>
 
-<p><b>Username:</b> {{.Username}}</p>
-<p><b>Email:</b> {{.Email}}</p>
+        <nav class="nav-actions" aria-label="Навигация кабинета">
+            <a class="nav-link" href="/deposit">Пополнить</a>
+            <a class="nav-link" href="/withdraw">Вывести</a>
+            <a class="btn btn-secondary btn-small" href="/logout">Выйти</a>
+        </nav>
+    </header>
 
-<h2>Account</h2>
-<p><b>Balance:</b> {{.Balance}} {{.Currency}}</p>
+    <main class="app-shell">
+        <section class="page-header" aria-labelledby="welcome-title">
+            <div>
+                <p class="eyebrow">Кабинет</p>
+                <h1 id="welcome-title">Здравствуйте, {{.Username}}</h1>
+                <p class="lead">Ваш баланс, профиль и быстрые операции в одном спокойном интерфейсе.</p>
+            </div>
+            <div class="header-summary">
+                <span class="badge">Счет активен</span>
+                <p class="form-note">Доступ к операциям открыт после входа.</p>
+            </div>
+        </section>
 
-<p><a href="/deposit">Deposit money</a></p>
-<p><a href="/withdraw">Withdraw money</a></p>
-<p><a href="/logout">Logout</a></p>
+        <section class="stats-grid" aria-label="Ключевые показатели">
+            <div class="stat-card">
+                <span>Текущий баланс</span>
+                <strong>{{.Balance}} {{.Currency}}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Тип счета</span>
+                <strong>Standard</strong>
+            </div>
+            <div class="stat-card">
+                <span>Профиль</span>
+                <strong>{{.Email}}</strong>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <section class="panel balance-panel" aria-label="Баланс счета">
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">Доступно</p>
+                        <h2>Баланс счета</h2>
+                    </div>
+                    <span class="status-pill">Активен</span>
+                </div>
+
+                <p class="balance-amount">{{.Balance}} <span>{{.Currency}}</span></p>
+
+                <div class="quick-actions" aria-label="Операции с деньгами">
+                    <a class="btn btn-primary" href="/deposit">Пополнить</a>
+                    <a class="btn btn-secondary" href="/withdraw">Вывести</a>
+                </div>
+            </section>
+
+            <section class="dashboard-card" aria-labelledby="profile-title">
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">Профиль</p>
+                        <h2 id="profile-title">Данные аккаунта</h2>
+                    </div>
+                </div>
+
+                <dl class="detail-list">
+                    <div>
+                        <dt>Пользователь</dt>
+                        <dd>{{.Username}}</dd>
+                    </div>
+                    <div>
+                        <dt>Email</dt>
+                        <dd>{{.Email}}</dd>
+                    </div>
+                    <div>
+                        <dt>Валюта</dt>
+                        <dd>{{.Currency}}</dd>
+                    </div>
+                    <div>
+                        <dt>Тип счета</dt>
+                        <dd>Standard</dd>
+                    </div>
+                </dl>
+            </section>
+        </div>
+
+        <section class="panel tools-section" aria-labelledby="actions-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Операции</p>
+                    <h2 id="actions-title">Быстрые действия</h2>
+                </div>
+                <span class="badge badge-muted">2 сценария</span>
+            </div>
+
+            <div class="action-grid">
+                <a class="transaction-link" href="/deposit">
+                    <span>Пополнить счет</span>
+                    <small>Добавить деньги на баланс и вернуться к обзору счета</small>
+                </a>
+                <a class="transaction-link" href="/withdraw">
+                    <span>Вывести деньги</span>
+                    <small>Списать сумму с текущего баланса в пределах доступного остатка</small>
+                </a>
+            </div>
+        </section>
+
+        <section class="dashboard-card tools-section" aria-labelledby="ledger-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Финансовая лента</p>
+                    <h2 id="ledger-title">Обзор активности</h2>
+                </div>
+            </div>
+
+            <div class="mini-ledger">
+                <div class="transaction-row">
+                    <span>Пополнение счета</span>
+                    <strong class="income">+ 0.00 {{.Currency}}</strong>
+                </div>
+                <div class="transaction-row">
+                    <span>Вывод средств</span>
+                    <strong class="outcome">- 0.00 {{.Currency}}</strong>
+                </div>
+                <div class="transaction-row">
+                    <span>Статус кабинета</span>
+                    <strong>Готов к операциям</strong>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

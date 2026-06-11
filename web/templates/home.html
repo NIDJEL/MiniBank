@@ -1,16 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MiniBank</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-    <h1>MiniBank</h1>
-    <p>Online bank on Go</p>
+<body class="page">
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Главная MiniBank">
+            <span class="brand-mark">M</span>
+            <span class="brand-text">
+                <span>MiniBank</span>
+                <span class="brand-kicker">Personal finance</span>
+            </span>
+        </a>
 
-    <a href="/register">Sign up</a>
-    <br>
-    <a href="/login">Sign in</a>
+        <nav class="nav-actions" aria-label="Основная навигация">
+            <a class="nav-link" href="#features">Возможности</a>
+            <a class="nav-link" href="/login">Войти</a>
+            <a class="btn btn-primary btn-small" href="/register">Открыть счет</a>
+        </nav>
+    </header>
+
+    <main class="home-shell">
+        <section class="landing-hero" aria-labelledby="main-title">
+            <div class="landing-copy">
+                <p class="eyebrow">Интернет-банк для ежедневных денег</p>
+                <h1 id="main-title">Финансы под контролем в MiniBank</h1>
+                <p class="lead">Легкий счет для пополнений, выводов и понятного контроля баланса. Чистый интерфейс без лишнего шума, только основные действия.</p>
+
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="/register">Открыть счет</a>
+                    <a class="btn btn-secondary" href="/login">Войти в кабинет</a>
+                </div>
+
+                <div class="trust-row" aria-label="Преимущества">
+                    <span class="badge">Мгновенный доступ</span>
+                    <span class="badge badge-muted">Баланс в реальном времени</span>
+                    <span class="badge badge-muted">Адаптивный кабинет</span>
+                </div>
+            </div>
+
+            <aside class="finance-showcase" aria-label="Превью финансового кабинета">
+                <div class="mockup-sheet">
+                    <div class="mockup-top">
+                        <div class="mockup-window" aria-hidden="true">
+                            <span class="mockup-dot"></span>
+                            <span class="mockup-dot"></span>
+                            <span class="mockup-dot"></span>
+                        </div>
+                        <span class="mockup-card-number">**** 2048</span>
+                    </div>
+
+                    <div class="balance-tile">
+                        <span class="muted-label">Доступный баланс</span>
+                        <p class="preview-amount">0.00 <span>RUB</span></p>
+                        <div class="metric-row">
+                            <span>Пополнения</span>
+                            <strong>+12%</strong>
+                        </div>
+                    </div>
+
+                    <div class="metric-grid">
+                        <div class="metric-tile">
+                            <span>Входящие</span>
+                            <strong>24/7</strong>
+                        </div>
+                        <div class="metric-tile">
+                            <span>Операции</span>
+                            <strong>2 клика</strong>
+                        </div>
+                    </div>
+
+                    <div class="chart" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <section class="section-band" id="features">
+        <div class="container">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Возможности</p>
+                    <h2>Все базовые банковские действия в одном аккуратном кабинете</h2>
+                </div>
+                <p class="section-copy">MiniBank фокусируется на главном: быстро посмотреть баланс, пополнить счет и вывести средства без сложной навигации.</p>
+            </div>
+
+            <div class="features-grid">
+                <article class="feature-card">
+                    <span class="feature-icon">+</span>
+                    <h3>Быстрые пополнения</h3>
+                    <p>Форма пополнения остается простой и предсказуемой, а интерфейс помогает не теряться на маленьких экранах.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="feature-icon">₽</span>
+                    <h3>Понятный баланс</h3>
+                    <p>Главная сумма вынесена в крупную карточку, чтобы состояние счета считывалось с первого взгляда.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="feature-icon">↗</span>
+                    <h3>Аккуратные выводы</h3>
+                    <p>Вывод средств оформлен отдельным чистым сценарием с сохранением всех текущих правил backend.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-band">
+        <div class="container">
+            <div class="product-strip">
+                <div class="product-copy">
+                    <p class="eyebrow">Premium feel</p>
+                    <h2>Мягкий fintech-дизайн для ежедневных операций</h2>
+                    <p>Светлый фон, крупные карточки и спокойные акценты помогают быстро сфокусироваться на деньгах.</p>
+                </div>
+
+                <div class="product-tiles" aria-label="Особенности интерфейса">
+                    <div class="soft-tile accent">
+                        <span class="badge">Mobile-first</span>
+                        <h3>Удобно на телефоне</h3>
+                        <p>Карточки складываются в одну колонку, кнопки остаются крупными.</p>
+                    </div>
+                    <div class="soft-tile">
+                        <span class="badge badge-muted">Clean UI</span>
+                        <h3>Много воздуха</h3>
+                        <p>Страницы не перегружены, фокус всегда на действии.</p>
+                    </div>
+                    <div class="soft-tile">
+                        <span class="badge badge-muted">Secure flow</span>
+                        <h3>Предсказуемые операции</h3>
+                        <p>Каждое действие остается понятным от первого клика до результата.</p>
+                    </div>
+                    <div class="soft-tile accent">
+                        <span class="badge">SaaS style</span>
+                        <h3>Единый язык</h3>
+                        <p>Все страницы ощущаются частью одного аккуратного продукта.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
